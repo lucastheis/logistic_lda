@@ -6,52 +6,13 @@ http://www.apache.org/licenses/LICENSE-2.0
 Implementations of logistic LDA and baseline models for use with Tensorflow's Estimator.
 """
 
+from logistic_lda.utils import create_table, softmax_cross_entropy
+
 import numpy as np
 import tensorflow as tf
 
 
-def softmax_cross_entropy(targets, logits):
-  """
-  Implements a simple softmax cross entropy.
-
-  $$-\sum_i t_{ni} \cdot (l_{ni} - \ln \sum_j \exp l_{nj})$$
-
-  Targets can be arbitrary vectors and do not have to be one-hot encodings.
-
-  Args:
-    targets: A float tensor of shape [B, K]
-    logits: A float tensor of shape [B, K]
-
-  Returns:
-    A float tensor of shape [B]
-  """
-
-  logprobs = logits - tf.reduce_logsumexp(logits, axis=1, keepdims=True)
-  return -tf.reduce_sum(targets * logprobs, axis=1)
-
-
-def create_table(keys, values=None):
-  """
-  Creates a hash table which maps the given keys to integers (by default).
-
-  Args:
-    keys: A list containing possible keys
-    values: An optional list of corresponding values
-
-  Returns:
-    A `tf.contrib.lookup.HashTable` mapping keys to integers
-  """
-
-  if values is None:
-    values = np.arange(len(keys), dtype=np.int64)
-
-  return tf.contrib.lookup.HashTable(
-    tf.contrib.lookup.KeyValueTensorInitializer(
-      keys=keys,
-      values=values), -1)
-
-
-def mlp_fn(features, labels, mode, params):
+def mlp(features, labels, mode, params):
   """
   Model function implementing a simple MLP which can be used for topic modeling.
 
@@ -141,7 +102,7 @@ def mlp_fn(features, labels, mode, params):
     train_op=train_op)
 
 
-def logistic_lda_fn(features, labels, mode, params):
+def logistic_lda(features, labels, mode, params):
   """
   An implementation of logistic LDA.
 
