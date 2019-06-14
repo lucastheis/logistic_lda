@@ -58,7 +58,7 @@ def main(args):
         'model_regularization': 0.0,
         'author_topic_weight': 0.0,  # this avoids local optima of MF-VI
         'author_topic_iterations': 1,
-        'max_items_per_author': args.max_items_per_author,
+        'items_per_author': args.items_per_author,
         'meta_info': meta_info,
         'embedding': embedding,
         'use_author_topics': False,
@@ -79,7 +79,7 @@ def main(args):
         'model_regularization': 0.0,
         'author_topic_weight': args.author_topic_weight,
         'author_topic_iterations': args.author_topic_iterations,
-        'max_items_per_author': args.max_items_per_author,
+        'items_per_author': args.items_per_author,
         'meta_info': meta_info,
         'embedding': embedding,
         'use_author_topics': False,
@@ -166,7 +166,7 @@ if __name__ == '__main__':
   parser.add_argument('--batch_size', type=int, default=None)
   parser.add_argument('--num_iter', type=int, default=1)
   parser.add_argument('--topic_bias_regularization', type=float, default=None)
-  parser.add_argument('--max_items_per_author', type=int, default=None)
+  parser.add_argument('--items_per_author', type=int, default=None)
   parser.add_argument('--hidden_units', type=int, nargs='+', default=None)
   parser.add_argument('--model', default=None,
       choices=zip(*inspect.getmembers(models, inspect.isfunction))[0])

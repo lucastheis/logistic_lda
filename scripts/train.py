@@ -33,7 +33,7 @@ def main(args):
       'decay_steps': args.learning_rate_decay_steps,
       'alpha': args.topic_bias_regularization,
       'model_regularization': args.model_regularization,
-      'max_items_per_author': args.max_items_per_author,
+      'items_per_author': args.items_per_author,
       'author_topic_weight': args.author_topic_weight,
       'author_topic_iterations': args.author_topic_iterations,
       'meta_info': meta_info,
@@ -67,8 +67,8 @@ if __name__ == '__main__':
   parser.add_argument('--learning_rate_decay', type=float, default=0.8)
   parser.add_argument('--learning_rate_decay_steps', type=int, default=2000)
   parser.add_argument('--max_epochs', type=int, default=200)
-  parser.add_argument('--max_steps', type=int, default=3000)
-  parser.add_argument('--max_items_per_author', type=int, default=200)
+  parser.add_argument('--max_steps', type=int, default=300000)
+  parser.add_argument('--items_per_author', type=int, default=200)
   parser.add_argument('--num_valid', type=int, default=0)
   parser.add_argument('--hidden_units', type=int, nargs='*', default=[512, 256, 128])
   parser.add_argument('--model', default='logistic_lda',
