@@ -21,20 +21,6 @@ from logistic_lda import embeddings, models
 
 import numpy as np
 import tensorflow as tf
-from scipy.optimize import linear_sum_assignment
-
-
-def accuracy(preds, labels, weights=None):
-  if weights is None:
-    weights = np.ones_like(preds)
-
-  # remove unlabeled data
-  preds, labels, weights = _clean(preds, labels, weights)
-
-  if len(labels) == 0:
-    return 0.0
-
-  return np.sum([w * (p == l) for w, p, l in zip(weights, preds, labels)]) / float(np.sum(weights))
 
 
 def main(args):
@@ -151,6 +137,35 @@ def main(args):
   return 0
 
 
+def accuracy(preds, labels, weights=None):
+  if weights is None:
+    weights = np.ones_like(preds)
+
+  # remove unlabeled data
+  preds, labels, weights = _clean(preds, labels, weights)
+
+  if len(labels) == 0:
+    return 0.0
+
+  return np.sum([w * (p == l) for w, p, l in zip(weights, preds, labels)]) / float(np.sum(weights))
+
+
+def _clean(part0, part1):
+  """
+  Removes elements from both lists if element in one list is negative.
+  """
+
+  part0_ = []
+  part1_ = []
+
+  for a, b in zip(part0, part1):
+    if a >= 0 and b >= 0:
+      part0_.append(a)
+      part1_.append(b)
+
+  return part0_, part1_
+
+
 if __name__ == '__main__':
   parser = ArgumentParser(description=__doc__)
   parser.add_argument('--dataset', type=str,
@@ -174,7 +189,7 @@ if __name__ == '__main__':
       help='Which model function to use')
   parser.add_argument('--model_dir', type=str,
       help='Path to trained model')
-  parser.add_argument('--output', type=str, default='',
+  parser.add_argument('--output_results', type=str, default='',
       help='Where to store evaluation results (JSON)')
   parser.add_argument('--output_predictions', type=str, default='',
       help='Predictions will optionally be stored in this file (CSV)')
