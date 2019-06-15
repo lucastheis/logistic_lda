@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Evaluates accuracy with which a model predicts labels.
+Evaluates accuracy with which a model predicts topics of items and authors.
 """
 
 from __future__ import print_function
@@ -118,15 +118,6 @@ def main(args):
   results['accuracy_author_unweighted'] = accuracy(author_predictions, author_topics, weights)
   results['accuracy_item'] = accuracy(item_predictions, item_topics)
 
-  # evaluate confusion matrices
-  cm_u = np.zeros([len(meta_info['topics']), len(meta_info['topics'])], dtype=int)
-  for t, p in zip(author_topics, author_predictions):
-    cm_u[t][p] += 1
-
-  cm_i = np.zeros_like(cm_u)
-  for t, p in zip(item_topics, item_predictions):
-    cm_i[t][p] += 1
-
   pprint.pprint(results)
 
   # save results
@@ -162,27 +153,36 @@ def main(args):
 
 if __name__ == '__main__':
   parser = ArgumentParser(description=__doc__)
-  parser.add_argument('--dataset', type=str)
-  parser.add_argument('--batch_size', type=int, default=None)
-  parser.add_argument('--num_iter', type=int, default=1)
-  parser.add_argument('--topic_bias_regularization', type=float, default=None)
-  parser.add_argument('--items_per_author', type=int, default=None)
+  parser.add_argument('--dataset', type=str,
+      help='Path to a TFRecord dataset')
+  parser.add_argument('--batch_size', type=int, default=None,
+      help='Number of items per training batch')
+  parser.add_argument('--num_iter', type=int, default=1,
+      help='Number of passes through the dataset to compute beliefs with variational inference')
+  parser.add_argument('--topic_bias_regularization', type=float, default=None,
+      help='Parameter of Dirichlet prior on topic proportions')
+  parser.add_argument('--items_per_author', type=int, default=None,
+      help='For simplicity, the model assumes each author has the same number of items')
+  parser.add_argument('--author_topic_weight', type=float, default=None,
+      help='Strength of factor connecting author labels with topic proportions')
+  parser.add_argument('--author_topic_iterations', type=int, default=5,
+      help='Number of variational inference iterations to infer missing author labels')
   parser.add_argument('--hidden_units', type=int, nargs='+', default=None)
+      help='List of hidden units defining the neural network architecture')
   parser.add_argument('--model', default=None,
-      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0])
-  parser.add_argument('--model_dir', type=str)
-  parser.add_argument('--author_topic_weight', type=float, default=None)
-  parser.add_argument('--author_topic_iterations', type=int, default=5)
-  parser.add_argument('--output', type=str, default='')
+      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0],
+      help='Which model function to use')
+  parser.add_argument('--model_dir', type=str,
+      help='Path to trained model')
+  parser.add_argument('--output', type=str, default='',
+      help='Where to store evaluation results (JSON)')
   parser.add_argument('--output_predictions', type=str, default='',
-      help='Predictions will optionally be stored in this file in CSV format')
-  parser.add_argument('--cache', action='store_true', help='Cache data for faster iterations')
+      help='Predictions will optionally be stored in this file (CSV)')
   parser.add_argument('--embedding', default=None,
-      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0])
-  parser.add_argument('--embedding_path', default=None, type=str)
-  parser.add_argument('--embedding_vocab_size', default=None, type=int)
-  parser.add_argument('--embedding_dim', default=None, type=int)
-  parser.add_argument('--attention_path', default=None, type=str)
+      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0],
+      help='Which embedding function to apply to data points in the training set')
+  parser.add_argument('--cache', action='store_true',
+      help='Cache data for faster iterations')
 
   args = parser.parse_args()
 

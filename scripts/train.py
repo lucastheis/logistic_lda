@@ -57,31 +57,48 @@ def main(args):
 
 if __name__ == '__main__':
   parser = ArgumentParser(description=__doc__)
-  parser.add_argument('--dataset', type=str)
-  parser.add_argument('--batch_size', type=int, default=32)
-  parser.add_argument('--author_topic_weight', type=float, default=200)
-  parser.add_argument('--author_topic_iterations', type=float, default=1)
-  parser.add_argument('--topic_bias_regularization', type=float, default=0.5)
-  parser.add_argument('--model_regularization', type=float, default=2.5)
-  parser.add_argument('--initial_learning_rate', type=float, default=0.001)
-  parser.add_argument('--learning_rate_decay', type=float, default=0.8)
-  parser.add_argument('--learning_rate_decay_steps', type=int, default=2000)
-  parser.add_argument('--max_epochs', type=int, default=200)
+  parser.add_argument('--dataset', type=str,
+      help='Path to a TFRecord dataset')
+  parser.add_argument('--batch_size', type=int, default=32,
+      help='Number of items per training batch')
+  parser.add_argument('--author_topic_weight', type=float, default=200,
+      help='Strength of factor connecting author labels with topic proportions')
+  parser.add_argument('--author_topic_iterations', type=float, default=1,
+      help='Number of variational inference iterations to infer missing author labels')
+  parser.add_argument('--topic_bias_regularization', type=float, default=0.5,
+      help='Parameter of Dirichlet prior on topic proportions')
+  parser.add_argument('--items_per_author', type=int, default=200,
+      help='For simplicity, the model assumes each author has the same number of items')
+  parser.add_argument('--model_regularization', type=float, default=2.5,
+      help='Strength of regularization encouraging model to use many topics')
+  parser.add_argument('--initial_learning_rate', type=float, default=0.001,
+      help='Initial learning rate of optimizer')
+  parser.add_argument('--learning_rate_decay', type=float, default=0.8,
+      help='Parameter of exponential learning rate decay')
+  parser.add_argument('--learning_rate_decay_steps', type=int, default=2000,
+      help='Parameter of exponential learning rate decay')
+  parser.add_argument('--max_epochs', type=int, default=200,
+      help='Maximum number of passes through the training set')
   parser.add_argument('--max_steps', type=int, default=300000)
-  parser.add_argument('--items_per_author', type=int, default=200)
-  parser.add_argument('--num_valid', type=int, default=0)
-  parser.add_argument('--hidden_units', type=int, nargs='*', default=[512, 256, 128])
+      help='Maximum number of updates to the model parameters')
+  parser.add_argument('--num_valid', type=int, default=0,
+      help='Number of training points used for validation')
+  parser.add_argument('--hidden_units', type=int, nargs='*', default=[512, 256, 128],
+      help='List of hidden units defining the neural network architecture')
   parser.add_argument('--model', default='logistic_lda',
-      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0])
+      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0],
+      help='Which model function to use')
   parser.add_argument('--embedding', default='identity',
-      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0])
-  parser.add_argument('--embedding_path', default=None, type=str)
-  parser.add_argument('--embedding_vocab_size', default=None, type=int)
-  parser.add_argument('--embedding_dim', default=None, type=int)
-  parser.add_argument('--attention_path', default=None, type=str)
-  parser.add_argument('--model_dir', type=str)
-  parser.add_argument('--overwrite', action='store_true')
-  parser.add_argument('--warm_start_from', type=str, default=None)
+      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0],
+      help='Which embedding function to apply to data points in the training set')
+  parser.add_argument('--model_dir', type=str,
+      help='Path where model checkpoints will be stored')
+  parser.add_argument('--overwrite', action='store_true',
+      help='If given, delete model path before starting to train')
+  parser.add_argument('--warm_start_from', type=str, default=None,
+      help='Initialize parameters from this model')
+  parser.add_argument('--cache', action='store_true',
+      help='Cache data to speed up subsequent training epochs')
 
   args, _ = parser.parse_known_args()
 
