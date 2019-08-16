@@ -1,6 +1,8 @@
 export PYTHONPATH=.:$PYTHONPATH
 
-python scripts/train.py \
+mkdir -p models/news20
+
+python3 scripts/train.py \
   --dataset "data/news20/news20_train/" \
   --model_dir "models/news20/" \
   --initial_learning_rate 0.001 \

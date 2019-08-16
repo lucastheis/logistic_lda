@@ -55,7 +55,7 @@ def main(args):
 
   # infer topics and author's topic distributions
   classifier = tf.estimator.Estimator(
-      model_fn=getattr(models, args.model + '_fn'),
+      model_fn=getattr(models, args.model),
       params={
         'hidden_units': args.hidden_units,
         'learning_rate': 0.0,
@@ -107,8 +107,8 @@ def main(args):
   pprint.pprint(results)
 
   # save results
-  if args.output:
-    with tf.gfile.GFile(args.output, 'w') as handle:
+  if args.output_results:
+    with tf.gfile.GFile(args.output_results, 'w') as handle:
       json.dump(results, handle, indent=4)
 
   if args.output_predictions:
@@ -142,7 +142,7 @@ def accuracy(preds, labels, weights=None):
     weights = np.ones_like(preds)
 
   # remove unlabeled data
-  preds, labels, weights = _clean(preds, labels, weights)
+  preds, labels, weights = remove_unlabelled_entries(preds, labels, weights)
 
   if len(labels) == 0:
     return 0.0
@@ -150,20 +150,20 @@ def accuracy(preds, labels, weights=None):
   return np.sum([w * (p == l) for w, p, l in zip(weights, preds, labels)]) / float(np.sum(weights))
 
 
-def _clean(part0, part1):
-  """
-  Removes elements from both lists if element in one list is negative.
-  """
+def remove_unlabelled_entries(*lists):
+    """
+    Removes elements from all lists if element in one list is negative.
+    """
 
-  part0_ = []
-  part1_ = []
+    def _all_non_neg(values):
+        return np.all(np.asarray(values) >= 0)
 
-  for a, b in zip(part0, part1):
-    if a >= 0 and b >= 0:
-      part0_.append(a)
-      part1_.append(b)
+    lists_clean = list(zip(*filter(_all_non_neg, zip(*lists))))
 
-  return part0_, part1_
+    if len(lists_clean) > 1:
+        return lists_clean
+
+    return [[] for _ in lists]
 
 
 if __name__ == '__main__':
@@ -182,10 +182,10 @@ if __name__ == '__main__':
       help='Strength of factor connecting author labels with topic proportions')
   parser.add_argument('--author_topic_iterations', type=int, default=5,
       help='Number of variational inference iterations to infer missing author labels')
-  parser.add_argument('--hidden_units', type=int, nargs='+', default=None)
+  parser.add_argument('--hidden_units', type=int, nargs='+', default=None,
       help='List of hidden units defining the neural network architecture')
   parser.add_argument('--model', default=None,
-      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0],
+      choices=list(zip(*inspect.getmembers(models, inspect.isfunction)))[0],
       help='Which model function to use')
   parser.add_argument('--model_dir', type=str,
       help='Path to trained model')
@@ -194,7 +194,7 @@ if __name__ == '__main__':
   parser.add_argument('--output_predictions', type=str, default='',
       help='Predictions will optionally be stored in this file (CSV)')
   parser.add_argument('--embedding', default=None,
-      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0],
+      choices=list(zip(*inspect.getmembers(embeddings, inspect.isfunction)))[0],
       help='Which embedding function to apply to data points in the training set')
   parser.add_argument('--cache', action='store_true',
       help='Cache data for faster iterations')

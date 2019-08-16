@@ -79,17 +79,17 @@ if __name__ == '__main__':
       help='Parameter of exponential learning rate decay')
   parser.add_argument('--max_epochs', type=int, default=200,
       help='Maximum number of passes through the training set')
-  parser.add_argument('--max_steps', type=int, default=300000)
+  parser.add_argument('--max_steps', type=int, default=300000,
       help='Maximum number of updates to the model parameters')
   parser.add_argument('--num_valid', type=int, default=0,
       help='Number of training points used for validation')
   parser.add_argument('--hidden_units', type=int, nargs='*', default=[512, 256, 128],
       help='List of hidden units defining the neural network architecture')
   parser.add_argument('--model', default='logistic_lda',
-      choices=zip(*inspect.getmembers(models, inspect.isfunction))[0],
+      choices=list(zip(*inspect.getmembers(models, inspect.isfunction)))[0],
       help='Which model function to use')
   parser.add_argument('--embedding', default='identity',
-      choices=zip(*inspect.getmembers(embeddings, inspect.isfunction))[0],
+      choices=list(zip(*inspect.getmembers(embeddings, inspect.isfunction)))[0],
       help='Which embedding function to apply to data points in the training set')
   parser.add_argument('--model_dir', type=str,
       help='Path where model checkpoints will be stored')
