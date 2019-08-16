@@ -120,8 +120,8 @@ def logistic_lda(features, labels, mode, params):
     params['learning_rate']: Learning rate used with Adam
     params['decay_rate']: Exponential learning rate decay parameter
     params['decay_steps']: Exponential learning rate decay parameter
-    params['author_topic_weight']: Controls how much author topics influence the model
-    params['author_topic_iterations']: Number of iterations to infer missing topics
+    params['author_topic_weight']: Controls how much author labels influence the model
+    params['author_topic_iterations']: Number of iterations to infer missing author labels
     params['model_regularization']: Regularize model to make use of as many topics as possible
     params['items_per_author']: For simplicity, model assumes this many items per author
     params['alpha']: Smoothes topic distributions of authors
@@ -167,14 +167,16 @@ def logistic_lda(features, labels, mode, params):
       shape=[n_authors, n_topics],
       dtype=tf.float32,
       initializer=tf.ones_initializer,
-      trainable=False)
+      trainable=False,
+      use_resource=True)
 
     # keeps track of predicted topic distributions across all items
     topic_dist_total_var = tf.get_variable(
       'topic_dist_total',
       shape=[1, n_topics],
       initializer=tf.constant_initializer(1.0 / n_topics, dtype=tf.float32),
-      trainable=False)
+      trainable=False,
+      use_resource=True)
 
     # expected topic counts for each author
     topic_counts = tf.gather(topic_counts_var, author_ids)
@@ -192,7 +194,7 @@ def logistic_lda(features, labels, mode, params):
           author_topics_onehot)
 
       # update beliefs over author's topic distribution
-      author_alpha = params['alpha'] + topic_counts + params['author_topic_weight'] * author_topics_prediction 
+      author_alpha = params['alpha'] + topic_counts + params['author_topic_weight'] * author_topics_prediction
       topic_biases = tf.digamma(author_alpha)
 
       # update predictions of author topics
