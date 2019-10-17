@@ -5,7 +5,7 @@ This package provides basic implementations of _logistic latent Dirichlet alloca
 used to discover topics in data containing groups of thematically related items, using either
 labeled data or unlabeled data.
 
-If you want to reproduce experiments of our paper, start here instead instead: [:octocat: IraKorshunova/logistic-lda](https://github.com/IraKorshunova/logistic-lda)
+If you want to reproduce experiments of our paper, start here instead instead: [:octocat: logistic-lda/experiments](https://github.com/lucastheis/logistic_lda/tree/experiments)
 
 Requirements
 ------------
